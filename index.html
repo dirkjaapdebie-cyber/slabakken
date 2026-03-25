@@ -3,109 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klabakken Party Master</title>
+    <title>Klabakken Regie</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --teamA: #0984e3; --teamB: #e84393; --neutral: #6c5ce7; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); text-align: center; margin: 0; padding: 10px; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 480px; margin: 15px auto; border: 2px solid #fff; position: relative; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); text-align: center; margin: 0; padding: 10px; }
         
-        /* Instructieblok */
-        .instruction-box { background: #fff9db; border: 2px solid #fab005; border-radius: 15px; padding: 15px; margin: 10px auto; max-width: 480px; text-align: left; font-size: 0.9rem; color: #664d03; }
-        .instruction-box h3 { margin-top: 0; color: #e67e22; display: flex; align-items: center; gap: 8px; }
-
-        /* Team Status Kleuren */
+        /* Admin Link Rechtsboven */
+        #admin-gate { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: #aaa; cursor: pointer; text-decoration: underline; }
+        
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 480px; margin: 15px auto; border: 2px solid #fff; }
         .status-A { border-top: 10px solid var(--teamA); }
         .status-B { border-top: 10px solid var(--teamB); }
         
-        h1 { color: var(--neutral); margin-bottom: 5px; font-size: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-        .timer { font-size: 4.5rem; font-weight: 900; color: #d63031; line-height: 1; margin: 10px 0; font-variant-numeric: tabular-nums; }
-        .word-box { font-size: 2.2rem; background: #fff3cd; padding: 25px; border: 4px dashed #fdcb6e; border-radius: 15px; margin: 15px 0; font-weight: bold; color: #2d3436; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+        h1 { color: var(--neutral); margin-top: 20px; }
+        .timer { font-size: 4rem; font-weight: 900; color: #d63031; }
+        .word-box { font-size: 2.2rem; background: #fff3cd; padding: 20px; border: 4px dashed #fdcb6e; border-radius: 15px; margin: 15px 0; font-weight: bold; }
         
-        button { background: #00b894; color: white; border: none; padding: 15px 20px; border-radius: 50px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin: 8px 0; width: 90%; transition: 0.2s; box-shadow: 0 4px 0 #008f72; }
-        button:active { transform: translateY(3px); box-shadow: none; }
-        .btn-start { background: var(--neutral); animation: pulse 1.5s infinite; box-shadow: 0 4px 0 #5444c4; }
-        .btn-wrong { background: #fab1a0; color: #d63031; box-shadow: 0 4px 0 #e17055; }
-        .btn-reset { background: #636e72; font-size: 0.7rem; width: auto; padding: 5px 15px; margin-top: 20px; color: #eee; box-shadow: none; }
-        
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        button { background: #00b894; color: white; border: none; padding: 15px 20px; border-radius: 50px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin: 8px 0; width: 90%; }
+        .btn-start { background: var(--neutral); animation: pulse 1.5s infinite; }
+        .btn-wrong { background: #fab1a0; color: #d63031; }
+        .btn-reset { background: #d63031; margin-top: 20px; }
         
         .hidden { display: none; }
-        input { width: 85%; padding: 12px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
+        input { width: 85%; padding: 12px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #ccc; font-size: 1rem; }
         
         .score-row { display: flex; justify-content: space-around; margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 15px; }
-        .score-val { font-size: 2.2rem; font-weight: bold; }
-        .admin-list { text-align: left; font-size: 0.85rem; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-top: 10px; }
+        .admin-list { text-align: left; font-size: 0.8rem; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee; flex: 1; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div class="instruction-box">
-        <h3>🎙️ De Quizmaster spreekt:</h3>
-        Welkom bij <b>Klabakken</b>! Het doel is simpel:
-        <ol style="margin: 5px 0; padding-left: 20px;">
-            <li>Log in met je naam (één iemand is de spelleider).</li>
-            <li>Voer een geheim woord in (persoon, dier, plant of ding).</li>
-            <li>Omschrijf het woord aan je team zonder het te noemen!</li>
-            <li><b>Ronde 1:</b> Omschrijven. <b>Ronde 2:</b> Uitbeelden.</li>
-        </ol>
-        <i>Pas op: de klok tikt en de spelleider is onverbiddelijk!</i>
-    </div>
+    <div id="admin-gate" onclick="toggleAdminLogin()">Beheer</div>
 
     <h1>🎭 KLABAKKEN</h1>
 
     <div id="setup-screen" class="card">
+        <div id="admin-login-box" class="hidden" style="margin-bottom: 20px; background: #eee; padding: 10px; border-radius: 10px;">
+            <input type="password" id="admin-pass" placeholder="***">
+            <button onclick="login(true)" style="font-size: 0.8rem; padding: 5px;">Login als Spelleider</button>
+        </div>
+        <h3>Speler Login</h3>
         <input type="text" id="username" placeholder="Je voornaam...">
-        <input type="password" id="admin-pass" placeholder="Wachtwoord (bie123)">
-        <button onclick="login()">De Arena in!</button>
+        <button onclick="login(false)">Meedoen!</button>
     </div>
 
     <div id="word-screen" class="card hidden">
         <h3>Hoi <span id="display-name"></span>!</h3>
-        <p>Voeg een woord toe aan de pot:</p>
-        <input type="text" id="user-word" placeholder="bijv. 'Koning Willem-Alexander'">
+        <p>Voer een woord in voor de pot:</p>
+        <input type="text" id="user-word" placeholder="bijv. Leeuw">
         <button onclick="submitWord()">In de pot!</button>
     </div>
 
     <div id="game-screen" class="card hidden">
         <div id="timer" class="timer">30</div>
-        <div id="turn-msg" style="font-weight:bold; margin-bottom:10px; font-size: 1.2rem;"></div>
+        <div id="turn-msg" style="font-weight:bold; margin-bottom:10px;"></div>
         
-        <div id="player-active" class="hidden">
-            <p id="action-type">OMSChRIJF HET WOORD:</p>
-            <div id="secret-word" class="word-box">...</div>
-        </div>
-
-        <div id="spectator-view">
-            <p>Raad het woord van:</p>
-            <h2 id="active-player-name" style="margin-top:0; color: #2d3436;">?</h2>
+        <div id="player-view">
+            <div id="player-active" class="hidden">
+                <p>JIJ OMSCHRIJFT:</p>
+                <div id="secret-word" class="word-box">...</div>
+            </div>
+            <div id="spectator-view">
+                <p>Raad het woord van:</p>
+                <h2 id="active-player-name">?</h2>
+            </div>
         </div>
 
         <div class="score-row">
-            <div><span style="color:var(--teamA)">Team A</span><br><span id="score-a" class="score-val" style="color:var(--teamA)">0</span></div>
-            <div><span style="color:var(--teamB)">Team B</span><br><span id="score-b" class="score-val" style="color:var(--teamB)">0</span></div>
+            <div>Team A: <b id="score-a">0</b></div>
+            <div>Team B: <b id="score-b">0</b></div>
         </div>
 
         <div id="admin-controls" class="hidden">
             <hr>
-            <div id="admin-alert" style="background:#e1f5fe; padding:8px; border-radius:10px; color:#01579b; font-size:0.85rem; margin-bottom:10px; border: 1px solid #b3e5fc;"></div>
-            <div id="admin-word-display"></div>
+            <div id="admin-alert" style="color:#01579b; font-size:0.85rem; margin-bottom:10px; font-weight:bold;"></div>
+            <div id="admin-word-display" style="background:#f8f9fa; padding:10px; border-radius:10px; border:1px solid #ddd;"></div>
             
             <div id="timer-controls">
-                <button id="btn-start-clock" class="btn-start" onclick="toggleClock()">START KLOK ▶️</button>
+                <button class="btn-start" onclick="toggleClock()">START KLOK ▶️</button>
             </div>
             
             <div id="judge-controls" class="hidden">
                 <button onclick="judge(true)">GOED ✅</button>
-                <button class="btn-wrong" onclick="judge(false)">FOUT / WISSEL ❌</button>
+                <button class="btn-wrong" onclick="judge(false)">FOUT / VOLGENDE ❌</button>
             </div>
 
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <div class="admin-list" style="flex:1; border-left:4px solid var(--teamA)"><b>Team A</b><div id="list-A"></div></div>
-                <div class="admin-list" style="flex:1; border-left:4px solid var(--teamB)"><b>Team B</b><div id="list-B"></div></div>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <div class="admin-list"><b>Team A:</b><div id="list-A"></div></div>
+                <div class="admin-list"><b>Team B:</b><div id="list-B"></div></div>
             </div>
             
-            <button class="btn-reset" onclick="resetGame()">ALLES RESETTEN</button>
+            <button class="btn-reset" onclick="resetGame()">RESET HELE POT & SCORES</button>
         </div>
     </div>
 
@@ -127,15 +118,24 @@
         const db = getDatabase(app);
         let myName = "", isAdmin = false;
 
-        window.login = function() {
-            myName = document.getElementById('username').value.trim();
-            if(!myName) return;
-            if(document.getElementById('admin-pass').value === 'bie123') isAdmin = true;
-            
-            set(ref(db, 'players/' + myName), { name: myName, isAdmin: isAdmin });
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('word-screen').classList.remove('hidden');
-            document.getElementById('display-name').innerText = myName;
+        window.toggleAdminLogin = () => document.getElementById('admin-login-box').classList.toggle('hidden');
+
+        window.login = function(asAdmin) {
+            if(asAdmin) {
+                if(document.getElementById('admin-pass').value === 'bie123') {
+                    isAdmin = true;
+                    myName = "SPELLEIDER";
+                    document.getElementById('setup-screen').classList.add('hidden');
+                    document.getElementById('game-screen').classList.remove('hidden');
+                } else { alert("Fout wachtwoord"); }
+            } else {
+                myName = document.getElementById('username').value.trim();
+                if(!myName) return;
+                set(ref(db, 'players/' + myName), { name: myName });
+                document.getElementById('setup-screen').classList.add('hidden');
+                document.getElementById('word-screen').classList.remove('hidden');
+                document.getElementById('display-name').innerText = myName;
+            }
         };
 
         window.submitWord = function() {
@@ -143,7 +143,6 @@
             if(w) push(ref(db, 'wordpool'), { word: w });
             document.getElementById('word-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-            if(isAdmin) setupGame();
         };
 
         async function setupGame() {
@@ -188,45 +187,45 @@
 
         onValue(ref(db, 'game'), (snap) => {
             const d = snap.val();
-            if(!d) return;
+            if(!d) {
+                if(!isAdmin) location.reload();
+                return;
+            }
 
             document.getElementById('score-a').innerText = d.scoreA;
             document.getElementById('score-b').innerText = d.scoreB;
             document.getElementById('timer').innerText = d.timer;
             
             const activeP = d.activeTeam === 'A' ? d.teamA[d.pIdxA] : d.teamB[d.pIdxB];
-            const curW = d.words[d.wIdx]?.word || "PONT LEEG!";
+            const curW = d.words[d.wIdx]?.word || "OP!";
             
             document.getElementById('active-player-name').innerText = activeP;
             document.getElementById('game-screen').className = `card status-${d.activeTeam}`;
-            document.getElementById('turn-msg').innerText = `TEAM ${d.activeTeam} IS AAN DE BEURT`;
-            document.getElementById('turn-msg').style.color = d.activeTeam === 'A' ? 'var(--teamA)' : 'var(--teamB)';
-
-            if(myName === activeP) {
-                document.getElementById('player-active').classList.remove('hidden');
-                document.getElementById('secret-word').innerText = d.clockRunning ? curW : "⏱️ WACHTEN OP START...";
-                document.getElementById('spectator-view').classList.add('hidden');
-            } else {
-                document.getElementById('player-active').classList.add('hidden');
-                document.getElementById('spectator-view').classList.remove('hidden');
-            }
+            document.getElementById('turn-msg').innerText = `TEAM ${d.activeTeam} AAN ZET`;
 
             if(isAdmin) {
                 document.getElementById('admin-controls').classList.remove('hidden');
+                document.getElementById('player-view').classList.add('hidden');
                 const nTK = d.activeTeam === 'A' ? 'B' : 'A';
                 const nP = (nTK === 'A' ? d.teamA[d.pIdxA] : d.teamB[d.pIdxB]);
+                document.getElementById('admin-alert').innerText = `WAARSCHUW: ${nP} is hierna!`;
+                document.getElementById('admin-word-display').innerHTML = `SPELER: <b>${activeP}</b><br><span style="font-size:2rem; color:red;">${curW}</span>`;
                 
-                document.getElementById('admin-alert').innerHTML = `📢 Waarschuw: <b>${nP}</b> staat stand-by voor Team ${nTK}!`;
-                document.getElementById('admin-word-display').innerHTML = `
-                    <div style="font-size:0.9rem;">Speler: <b>${activeP}</b></div>
-                    <div style="font-size:2rem; color:#d63031; font-weight:bold; margin-bottom:10px; background:#fff5f5; border-radius:10px; padding:5px;">${curW}</div>`;
-
-                const renderL = (arr, act) => arr.map(n => n===act ? `<div style="background:#eee; padding:2px 5px; border-radius:5px;"><b>👉 ${n}</b></div>` : `<div style="opacity:0.4; padding:2px 5px;">${n}</div>`).join('');
-                document.getElementById('list-A').innerHTML = renderL(d.teamA, activeP);
-                document.getElementById('list-B').innerHTML = renderL(d.teamB, activeP);
+                const rL = (arr, act) => arr.map(n => n===act ? `<b>👉 ${n}</b>` : `<span style="opacity:0.5;">${n}</span>`).join('<br>');
+                document.getElementById('list-A').innerHTML = rL(d.teamA, activeP);
+                document.getElementById('list-B').innerHTML = rL(d.teamB, activeP);
 
                 document.getElementById('timer-controls').classList.toggle('hidden', d.clockRunning);
                 document.getElementById('judge-controls').classList.toggle('hidden', !d.clockRunning);
+            } else {
+                if(myName === activeP) {
+                    document.getElementById('player-active').classList.remove('hidden');
+                    document.getElementById('secret-word').innerText = d.clockRunning ? curW : "WACHT OP START...";
+                    document.getElementById('spectator-view').classList.add('hidden');
+                } else {
+                    document.getElementById('player-active').classList.add('hidden');
+                    document.getElementById('spectator-view').classList.remove('hidden');
+                }
             }
 
             if(d.lastEvent?.startsWith('win')) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
@@ -234,9 +233,11 @@
 
         window.resetGame = () => { if(confirm("Alles wissen?")) { remove(ref(db)); location.reload(); }};
 
+        // De spelleider start het spel zodra er genoeg woorden zijn
         setInterval(() => {
             if(isAdmin) {
                 get(ref(db, 'game')).then(s => {
+                    if(!s.exists()) setupGame(); // Auto-init als er nog niks is
                     const d = s.val();
                     if(d && d.clockRunning && d.timer > 0) update(ref(db, 'game'), { timer: d.timer - 1 });
                     else if(d && d.clockRunning && d.timer === 0) judge(false);
